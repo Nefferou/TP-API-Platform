@@ -7,24 +7,29 @@ use App\Repository\SongRepository;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SongRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    paginationItemsPerPage: 5
+)]
 #[ApiResource(
     uriTemplate: '/artiste/{id_art}/album/{id_alb}/song/{id}',
     uriVariables: [
         'id-art' => new Link(
             fromClass: Artiste::class,
-            fromProperty: 'album'
+            fromProperty: 'albums'
         ),
         'id-alb' => new Link(
             fromClass: Album::class,
-            fromProperty: 'album'
+            fromProperty: 'songs'
+        ),
+        'id' => new Link(
+            fromClass: Song::class,
+            fromProperty: 'title'
         )
         ],
-        operations: [new GetCollection(), new Post()]
+        operations: [new Get(), new Post()]
 )]
 class Song
 {
@@ -40,7 +45,7 @@ class Song
     private ?int $length = null;
 
     #[ORM\ManyToOne]
-    private ?album $album = null;
+    private ?Album $album = null;
 
     public function getId(): ?int
     {
@@ -79,6 +84,7 @@ class Song
     public function setAlbum(?album $album): self
     {
         $this->album = $album;
+        $album->addSong($this);
 
         return $this;
     }

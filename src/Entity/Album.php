@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,7 +11,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    paginationItemsPerPage: 5,
+)]
 class Album
 {
     #[ORM\Id]
@@ -26,9 +29,6 @@ class Album
 
     #[ORM\OneToMany(mappedBy: 'album', targetEntity: Song::class)]
     private Collection $songs;
-
-    #[ORM\ManyToOne(inversedBy: 'albums')]
-    private ?artiste $artiste = null;
 
     public function __construct()
     {
@@ -76,7 +76,6 @@ class Album
     {
         if (!$this->songs->contains($song)) {
             $this->songs->add($song);
-            $song->setAlbum($this);
         }
 
         return $this;
@@ -102,6 +101,7 @@ class Album
     public function setArtiste(?artiste $artiste): self
     {
         $this->artiste = $artiste;
+        $artiste->addAlbum($this);
 
         return $this;
     }

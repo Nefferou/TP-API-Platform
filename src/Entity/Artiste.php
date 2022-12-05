@@ -6,10 +6,15 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ArtisteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArtisteRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    paginationItemsPerPage: 5,
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']]
+)]
 class Artiste
 {
     #[ORM\Id]
@@ -17,12 +22,15 @@ class Artiste
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['read', 'write'])]
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[Groups(['read', 'write'])]
     #[ORM\Column(length: 255)]
     private ?string $style = null;
 
+    #[Groups(['read'])]
     #[ORM\OneToMany(mappedBy: 'artiste', targetEntity: Album::class)]
     private Collection $albums;
 
@@ -72,7 +80,6 @@ class Artiste
     {
         if (!$this->albums->contains($album)) {
             $this->albums->add($album);
-            $album->setArtiste($this);
         }
 
         return $this;
@@ -81,10 +88,7 @@ class Artiste
     public function removeAlbum(Album $album): self
     {
         if ($this->albums->removeElement($album)) {
-            // set the owning side to null (unless already changed)
-            if ($album->getArtiste() === $this) {
-                $album->setArtiste(null);
-            }
+            $this->albums->remove($album);
         }
 
         return $this;
