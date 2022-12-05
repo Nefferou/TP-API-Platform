@@ -3,16 +3,18 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\AlbumRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ApiResource(
     paginationItemsPerPage: 5,
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']]
 )]
 class Album
 {
@@ -21,13 +23,21 @@ class Album
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Groups(['read', 'write'])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    #[Groups(['read', 'write'])]
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\OneToMany(mappedBy: 'album', targetEntity: Song::class)]
+    #[Groups(['read', 'write'])]
+    #[ORM\ManyToOne(inversedBy: 'albums')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Artiste $artiste = null;
+
+    #[Groups(['read'])]
+    #[ORM\OneToMany(mappedBy: 'album', targetEntity: song::class)]
     private Collection $songs;
 
     public function __construct()
@@ -64,24 +74,37 @@ class Album
         return $this;
     }
 
+    public function getArtiste(): ?Artiste
+    {
+        return $this->artiste;
+    }
+
+    public function setArtiste(?Artiste $artiste): self
+    {
+        $this->artiste = $artiste;
+
+        return $this;
+    }
+
     /**
-     * @return Collection<int, Song>
+     * @return Collection<int, song>
      */
     public function getSongs(): Collection
     {
         return $this->songs;
     }
 
-    public function addSong(Song $song): self
+    public function addSong(song $song): self
     {
         if (!$this->songs->contains($song)) {
             $this->songs->add($song);
+            $song->setAlbum($this);
         }
 
         return $this;
     }
 
-    public function removeSong(Song $song): self
+    public function removeSong(song $song): self
     {
         if ($this->songs->removeElement($song)) {
             // set the owning side to null (unless already changed)
@@ -89,19 +112,6 @@ class Album
                 $song->setAlbum(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getArtiste(): ?artiste
-    {
-        return $this->artiste;
-    }
-
-    public function setArtiste(?artiste $artiste): self
-    {
-        $this->artiste = $artiste;
-        $artiste->addAlbum($this);
 
         return $this;
     }

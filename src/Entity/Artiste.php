@@ -80,6 +80,7 @@ class Artiste
     {
         if (!$this->albums->contains($album)) {
             $this->albums->add($album);
+            $album->setArtiste($this);
         }
 
         return $this;
@@ -88,7 +89,10 @@ class Artiste
     public function removeAlbum(Album $album): self
     {
         if ($this->albums->removeElement($album)) {
-            $this->albums->remove($album);
+            // set the owning side to null (unless already changed)
+            if ($album->getArtiste() === $this) {
+                $album->setArtiste(null);
+            }
         }
 
         return $this;

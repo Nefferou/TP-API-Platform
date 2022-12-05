@@ -3,16 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\SongRepository;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Post;
+use App\Repository\SongRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SongRepository::class)]
-#[ApiResource(
-    paginationItemsPerPage: 5
-)]
+#[ApiResource()]
 #[ApiResource(
     uriTemplate: '/artiste/{id_art}/album/{id_alb}/song/{id}',
     uriVariables: [
@@ -23,13 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
         'id-alb' => new Link(
             fromClass: Album::class,
             fromProperty: 'songs'
-        ),
-        'id' => new Link(
-            fromClass: Song::class,
-            fromProperty: 'title'
-        )
-        ],
-        operations: [new Get(), new Post()]
+        )],
+        operations: [new Get()]
 )]
 class Song
 {
@@ -44,7 +36,8 @@ class Song
     #[ORM\Column]
     private ?int $length = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'songs')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Album $album = null;
 
     public function getId(): ?int
@@ -76,15 +69,14 @@ class Song
         return $this;
     }
 
-    public function getAlbum(): ?album
+    public function getAlbum(): ?Album
     {
         return $this->album;
     }
 
-    public function setAlbum(?album $album): self
+    public function setAlbum(?Album $album): self
     {
         $this->album = $album;
-        $album->addSong($this);
 
         return $this;
     }
