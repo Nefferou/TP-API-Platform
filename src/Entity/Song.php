@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
     uriVariables: [
         'id-art' => new Link(
             fromClass: Artiste::class,
-            fromProperty: 'artiste'
+            fromProperty: 'album'
         ),
         'id-alb' => new Link(
             fromClass: Album::class,
@@ -39,7 +39,7 @@ class Song
     #[ORM\Column]
     private ?int $length = null;
 
-    #[ORM\ManyToOne(inversedBy: 'songs')]
+    #[ORM\ManyToOne]
     private ?album $album = null;
 
     public function getId(): ?int
