@@ -36,7 +36,6 @@ class Album
     #[ORM\JoinColumn(nullable: false)]
     private ?Artiste $artiste = null;
 
-    #[Groups(['read'])]
     #[ORM\OneToMany(mappedBy: 'album', targetEntity: song::class)]
     private Collection $songs;
 
@@ -87,7 +86,7 @@ class Album
     }
 
     /**
-     * @return Collection<int, song>
+     * @return Collection<int, Song>
      */
     public function getSongs(): Collection
     {

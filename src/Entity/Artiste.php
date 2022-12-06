@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GraphQl\Operation;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\ArtisteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,6 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArtisteRepository::class)]
+#[ApiFilter(SearchFilter::class, properties: ['style' => 'start'])]
 #[ApiResource(
     paginationItemsPerPage: 5,
     normalizationContext: ['groups' => ['read']],
