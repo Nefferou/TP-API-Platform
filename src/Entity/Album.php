@@ -3,19 +3,43 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
+
 use App\Repository\AlbumRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ApiResource(
     paginationItemsPerPage: 5,
     normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']]
-)]
+    denormalizationContext: ['groups' => ['write']],
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Put(
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Post(
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')"
+        )
+])]
 class Album
 {
     #[ORM\Id]
