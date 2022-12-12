@@ -36,7 +36,7 @@ class Album
     #[ORM\JoinColumn(nullable: false)]
     private ?Artiste $artiste = null;
 
-    #[ORM\OneToMany(mappedBy: 'album', targetEntity: song::class)]
+    #[ORM\OneToMany(mappedBy: 'album', targetEntity: Song::class)]
     private Collection $songs;
 
     public function __construct()
@@ -93,7 +93,7 @@ class Album
         return $this->songs;
     }
 
-    public function addSong(song $song): self
+    public function addSong(Song $song): self
     {
         if (!$this->songs->contains($song)) {
             $this->songs->add($song);
@@ -103,7 +103,7 @@ class Album
         return $this;
     }
 
-    public function removeSong(song $song): self
+    public function removeSong(Song $song): self
     {
         if ($this->songs->removeElement($song)) {
             // set the owning side to null (unless already changed)
