@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -56,6 +57,7 @@ class Album
     private ?\DateTimeInterface $date = null;
 
     #[Groups(['read', 'write'])]
+    #[ApiProperty(readableLink: false, writableLink: false)]
     #[ORM\ManyToOne(inversedBy: 'albums')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Artiste $artiste = null;
